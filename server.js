@@ -70,10 +70,24 @@ app.post('/getContactsList',function(req,res){
 app.post('/addConnections',function(req,res){
 console.log(req.body.id);
 
+db.users.find({"uname":req.body.uname},function(err,docs){
+
+//console.log(docs[0]["connections"]);
+var data = {};
+data=docs[0]["connections"];
+data.push(req.body.newconnection);
+db.users.update({"uname":req.body.uname},{$set:{"connections":data}},function(err,docs){
+res.send("done");
+
+});
+
+});
+//db.users.update({"uname":req.body.uname},{$set:{"connection"}});
+
    /* var data={};
     data["_id"]=ObjectId(""+req.body.id+"");
     console.log(data);*/
-    db.connections.find({"connection":req.body.uname},function(err,docs){
+    /*db.connections.find({"connection":req.body.uname},function(err,docs){
         
         
         var data=docs[0][""+req.body.uname+""];
@@ -107,10 +121,9 @@ console.log(req.body.id);
         });
 
 
-       /* data.push("prashanth")
-        console.log(data);*/
+      
 
-    });
+    });*/
    /* db.connections.find({"connection":req.body.newconnection},function(err,docs){
                 data=docs[0][""+req.body.newconnection+""];
                 data.push(""+req.body.uname+"");
@@ -126,6 +139,36 @@ console.log(req.body.id);
 
              });*/
 });
+
+
+var getAllContactsData=[];
+app.post('/getAllContacts',function(req,res,next){
+
+  db.connections.find({connection:""+req.body.uname+""},function(err,docs){
+    var result=docs[0][""+req.body.uname+""];
+    
+
+    for(var i=0; i< result.length;i++){
+     
+      db.users.find({"uname":result[i]},function(err,docs){
+        console.log(docs[0]);
+        getAllContactsData.push(docs[0]);
+        console.log(getAllContactsData)
+  
+         
+      });
+
+       
+     }
+    
+       
+     
+  });next();
+},function(req,res){
+
+    res.send(getAllContactsData); 
+  });
+
 
 app.listen(3001);
 console.log('server running at port 3001');
