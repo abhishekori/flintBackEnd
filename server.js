@@ -68,106 +68,49 @@ app.post('/getContactsList',function(req,res){
 });
 
 app.post('/addConnections',function(req,res){
-console.log(req.body.id);
+  console.log(req.body.id);
 
-db.users.find({"uname":req.body.uname},function(err,docs){
+  db.users.find({"uname":req.body.uname},function(err,docs){
 
-//console.log(docs[0]["connections"]);
-var data = {};
-data=docs[0]["connections"];
-data.push(req.body.newconnection);
-db.users.update({"uname":req.body.uname},{$set:{"connections":data}},function(err,docs){
-res.send("done");
+    var data = {};
+    data=docs[0]["connections"];
+    data.push(req.body.newconnection);
+    db.users.update({"uname":req.body.uname},{$set:{"connections":data}},function(err,docs){
 
-});
+      db.users.find({"uname":req.body.newconnection},function(err,docs){
 
-});
-//db.users.update({"uname":req.body.uname},{$set:{"connection"}});
+          data = {};
+          data=docs[0]["connections"];
+          data.push(req.body.uname);
+          db.users.update({"uname":req.body.newconnection},{$set:{"connections":data}},function(err,docs){
 
-   /* var data={};
-    data["_id"]=ObjectId(""+req.body.id+"");
-    console.log(data);*/
-    /*db.connections.find({"connection":req.body.uname},function(err,docs){
-        
-        
-        var data=docs[0][""+req.body.uname+""];
-        data.push(""+req.body.newconnection+"");
-        
+            res.send("done");
 
-        var updatedata={};
-        updatedata[""+req.body.uname+""]=data;
-
-        db.connections.update({"connection":req.body.uname},{$set:updatedata},function(err,docs) {
-            //res.send(docs);
-
-        
-            db.connections.find({"connection":req.body.newconnection},function(err,docs){
-                console.log("new connection");
-                data=docs[0][""+req.body.newconnection+""];
-                data.push(""+req.body.uname+"");
-
-                var upDateNewConnection={};
-                upDateNewConnection[""+req.body.newconnection+""]=data;
-                console.log(upDateNewConnection);
-                
-              db.connections.update({"connection":req.body.newconnection},{$set:upDateNewConnection},function(err,docs){
-                console.log(docs);
-
-                res.send(docs);
-              });
-
-
-             });
-        });
-
-
-      
-
-    });*/
-   /* db.connections.find({"connection":req.body.newconnection},function(err,docs){
-                data=docs[0][""+req.body.newconnection+""];
-                data.push(""+req.body.uname+"");
-
-                var upDateNewConnection={};
-                upDateNewConnection[""+req.body.newconnection+""]=data;
-                
-              db.connections.update({"connections":req.body.newconnection},{$set:upDateNewConnection},function(err,docs){
-
-                res.send(docs);
-              });
-
-
-             });*/
-});
-
-
-var getAllContactsData=[];
-app.post('/getAllContacts',function(req,res,next){
-
-  db.connections.find({connection:""+req.body.uname+""},function(err,docs){
-    var result=docs[0][""+req.body.uname+""];
-    
-
-    for(var i=0; i< result.length;i++){
-     
-      db.users.find({"uname":result[i]},function(err,docs){
-        console.log(docs[0]);
-        getAllContactsData.push(docs[0]);
-        console.log(getAllContactsData)
-  
-         
+          })
       });
 
-       
-     }
-    
-       
-     
-  });next();
-},function(req,res){
+    });
 
-    res.send(getAllContactsData); 
   });
+});
+
+
+
+app.post('/getAllContacts',function(req,res){ 
+       db.users.find({"connections":req.body.uname},function(err,docs){
+res.json(docs);
+       });
+     
+  });
+
+app.post('/getProfileDetails',function(req,res){
+
+db.users.find({"uname":req.body.uname},function(err,docs){
+  res.json(docs);
+});
+
+});
+
 
 
 app.listen(3001);
